@@ -1,5 +1,5 @@
-name: babble_bird
-description: "A new Flutter project."
+name: tao_cat
+description: "An awoken cat that helps translate."
 publish_to: 'none'
 version: 0.1.0
 
@@ -7,8 +7,10 @@ environment:
   sdk: '>=3.3.4 <4.0.0'
 
 dependencies:
+  faker: ^2.1.0
   flutter:
     sdk: flutter
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
