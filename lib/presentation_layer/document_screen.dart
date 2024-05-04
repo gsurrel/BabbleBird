@@ -16,7 +16,8 @@ class DocumentScreen extends StatefulWidget {
 }
 
 class _DocumentScreenState extends State<DocumentScreen> {
-  late FlutterListViewController _listViewController;
+  final FlutterListViewController _listViewController =
+      FlutterListViewController();
 
   @override
   void initState() {
@@ -24,7 +25,6 @@ class _DocumentScreenState extends State<DocumentScreen> {
     final documentProvider =
         Provider.of<DocumentProvider>(context, listen: false);
     documentProvider.fetchDocument('documentId');
-    _listViewController = FlutterListViewController();
   }
 
   @override
@@ -57,13 +57,16 @@ class _DocumentScreenState extends State<DocumentScreen> {
   /// Each segment of the document is displayed in a row with the source text and a text field for the translation.
   Widget _buildDocumentListView(DocumentEntity document) {
     return Expanded(
-      child: FlutterListView.builder(
-        controller: _listViewController,
-        itemCount: document.segments.length,
-        itemBuilder: (context, index) {
-          final segment = document.segments[index];
-          return _buildSegmentRow(segment);
-        },
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: FlutterListView.builder(
+          controller: _listViewController,
+          itemCount: document.segments.length,
+          itemBuilder: (context, index) {
+            final segment = document.segments[index];
+            return _buildSegmentRow(segment);
+          },
+        ),
       ),
     );
   }
@@ -117,9 +120,9 @@ class _DocumentScreenState extends State<DocumentScreen> {
         child: SizedBox.expand(
           child: CustomPaint(
             painter: _BarPainter(
-              itemsHeights:
-                  document.segments.map((e) => e.sourceText.codeUnits.length),
-            ),
+                itemsHeights:
+                    document.segments.map((e) => e.sourceText.codeUnits.length),
+                controller: _listViewController),
           ),
         ),
       ),
@@ -158,20 +161,31 @@ class _DocumentScreenState extends State<DocumentScreen> {
 /// The panel is painted with alternating colors for each segment of the document.
 class _BarPainter extends CustomPainter {
   final Iterable<num> itemsHeights;
+  final FlutterListViewController controller;
 
-  _BarPainter({required this.itemsHeights});
+  _BarPainter({required this.itemsHeights, required this.controller});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint1 = Paint()..color = Colors.grey.withOpacity(0.2);
     final paint2 = Paint()..color = Colors.grey.withOpacity(0.3);
+    final paint3 = Paint()..color = Colors.amber;
 
     final scaling = size.height / itemsHeights.fold(0, (sum, val) => sum + val);
     final scaledHeights = itemsHeights.map((h) => h * scaling);
     double previousPosition = 0;
 
+    print(controller.offset);
     scaledHeights.toList().asMap().forEach((i, height) {
-      final paint = i % 2 == 0 ? paint1 : paint2;
+      final isInView = controller.offset >= previousPosition &&
+          controller.offset <= previousPosition + size.height;
+
+      final paint = isInView
+          ? paint3
+          : i % 2 == 0
+              ? paint1
+              : paint2;
+
       canvas.drawRect(
         Rect.fromLTWH(0, previousPosition, size.width, height),
         paint,
