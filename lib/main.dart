@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tao_cat/data_access_layer/data_sources/random_document_data_source.dart';
 import 'package:tao_cat/data_access_layer/document_repository.dart';
 import 'package:tao_cat/domain_layer/document_provider.dart';
 import 'package:tao_cat/presentation_layer/document_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:yaru/yaru.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,13 +20,14 @@ class MyApp extends StatelessWidget {
         documentRepository: DocumentRepository(
           dataSource: RandomDocumentDataSource(
             numParagraphs: 100,
-            minWordsPerParagraph: 6,
+            minWordsPerParagraph: 15,
             maxWordsPerParagraph: 300,
           ),
         ),
       ),
-      child: const MaterialApp(
-        home: Scaffold(
+      child: MaterialApp(
+        theme: const YaruThemeData().darkTheme,
+        home: const Scaffold(
           body: MyHomePage(),
         ),
       ),
