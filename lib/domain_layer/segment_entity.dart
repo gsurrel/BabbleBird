@@ -15,7 +15,7 @@ class SegmentEntity {
     translationText = newTranslation;
   }
 
-  void addNotes(String newNotes) {
+  void setNotes(String newNotes) {
     notes = newNotes;
   }
 }

@@ -78,6 +78,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  flutter_list_view:
+    dependency: "direct main"
+    description:
+      name: flutter_list_view
+      sha256: f1e4c4e1991923387bd9aad9e62219fbfdc0a4a51efedce823800926111f5c83
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.26"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -242,4 +250,4 @@ packages:
     version: "13.0.0"
 sdks:
   dart: ">=3.3.4 <4.0.0"
-  flutter: ">=1.16.0"
+  flutter: ">=1.17.0"

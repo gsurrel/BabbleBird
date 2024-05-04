@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       create: (context) => DocumentProvider(
         documentRepository: DocumentRepository(
           dataSource: RandomDocumentDataSource(
-            numParagraphs: 1000,
+            numParagraphs: 100,
             minWordsPerParagraph: 6,
             maxWordsPerParagraph: 300,
           ),
