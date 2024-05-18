@@ -154,9 +154,9 @@ class _DocumentScreenState extends State<DocumentScreen> {
       child: CustomPaint(
         size: const Size(20, double.infinity),
         painter: _BarPainter(
-            itemsHeights:
-                document.segments.map((e) => e.sourceText.codeUnits.length),
-            controller: _listViewController),
+          items: document.segments,
+          controller: _listViewController,
+        ),
       ),
     );
   }
@@ -165,14 +165,23 @@ class _DocumentScreenState extends State<DocumentScreen> {
   ///
   /// The tapped position is used to calculate the index of the segment to scroll to.
   void _handleTapOnNavigationPanel(
-      TapDownDetails details, DocumentEntity document) {
-    final heights = document.segments.map((e) => e.sourceText.codeUnits.length);
-    final totalHeight = heights.fold(0, (sum, val) => sum + val);
+    TapDownDetails details,
+    DocumentEntity document,
+  ) {
+    final charLengths = document.segments.map(
+      (segment) =>
+          segment.sourceText.codeUnits.length *
+          switch (segment.type) {
+            SegmentType.title => 10,
+            SegmentType.body => 1,
+          },
+    );
+    final totalHeight = charLengths.fold(0, (sum, val) => sum + val);
     final scaling = context.size!.height / totalHeight;
 
     double tappedPosition = details.localPosition.dy / scaling;
 
-    final before = heights.takeWhile((height) {
+    final before = charLengths.takeWhile((height) {
       if (height < tappedPosition) {
         tappedPosition -= height;
         return true;
@@ -183,7 +192,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
     _listViewController.sliverController.animateToIndex(
       before.length,
       duration: Durations.medium1,
-      curve: Curves.elasticInOut,
+      curve: Curves.easeInOutCubic,
     );
   }
 }
@@ -192,23 +201,35 @@ class _DocumentScreenState extends State<DocumentScreen> {
 ///
 /// The panel is painted with alternating colors for each segment of the document.
 class _BarPainter extends CustomPainter {
-  final Iterable<num> itemsHeights;
+  final List<SegmentEntity> items;
   final FlutterListViewController controller;
 
-  _BarPainter({required this.itemsHeights, required this.controller});
+  _BarPainter({required this.items, required this.controller});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paintEven = Paint()..color = Colors.grey.withOpacity(0.2);
     final paintOdd = Paint()..color = Colors.grey.withOpacity(0.3);
+    final paintTitle = Paint()..color = Colors.amber;
 
-    final scaling = size.height / itemsHeights.fold(0, (sum, val) => sum + val);
-    final scaledHeights = itemsHeights.map((h) => h * scaling);
+    final charLengths = items.map(
+      (segment) =>
+          segment.sourceText.codeUnits.length *
+          switch (segment.type) {
+            SegmentType.title => 10,
+            SegmentType.body => 1,
+          },
+    );
+    final scaling = size.height / charLengths.fold(0, (sum, val) => sum + val);
+    final scaledHeights = charLengths.map((h) => h * scaling);
     double previousPosition = 0;
 
     scaledHeights.toList().asMap().forEach((i, height) {
-      final paint = i % 2 == 0 ? paintEven : paintOdd;
-
+      final paint = items[i].type == SegmentType.title
+          ? paintTitle
+          : i % 2 == 0
+              ? paintEven
+              : paintOdd;
       canvas.drawRect(
         Rect.fromLTWH(0, previousPosition, size.width, height),
         paint,
@@ -219,7 +240,7 @@ class _BarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _BarPainter oldDelegate) {
-    return itemsHeights != oldDelegate.itemsHeights ||
+    return items != oldDelegate.items ||
         controller.offset != oldDelegate.controller.offset;
   }
 }
