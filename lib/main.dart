@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         documentRepository: DocumentRepository(
           dataSource: RandomDocumentDataSource(
             numParagraphs: 100,
-            minWordsPerParagraph: 6,
+            minWordsPerParagraph: 15,
             maxWordsPerParagraph: 300,
           ),
         ),

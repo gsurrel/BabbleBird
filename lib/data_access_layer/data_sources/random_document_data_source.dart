@@ -28,6 +28,21 @@ class RandomDocumentDataSource implements DataSource {
       return SegmentModel(
           id: 'segment_$index', sourceText: sourceText, translationText: '');
     });
+
+    // Insert chapter titles
+    for (int i = 0; i < 10; i++) {
+      int insertAt = (i * segments.length / 10).floor();
+      String chapterTitleText = _faker.lorem.words(8).join(' ');
+      segments.insert(
+        insertAt,
+        SegmentModel(
+          id: 'chapter_$i',
+          sourceText: chapterTitleText,
+          translationText: '',
+        ),
+      );
+    }
+
     return DocumentModel(id: id, segments: segments);
   }
 }

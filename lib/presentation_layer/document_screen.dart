@@ -97,9 +97,26 @@ class _DocumentScreenState extends State<DocumentScreen> {
   Widget _buildSegmentRow(SegmentEntity segment) {
     return Row(
       children: [
-        _buildSourceTextCard(segment),
+        switch (segment.type) {
+          SegmentType.title => _buildSourceChapterTitle(segment),
+          SegmentType.body => _buildSourceTextCard(segment),
+        },
         _buildTranslationTextField(segment),
       ],
+    );
+  }
+
+  /// Builds a title for the source text of a segment.
+  Widget _buildSourceChapterTitle(SegmentEntity segment) {
+    return Expanded(
+      child: Card(
+        color: Colors.amber,
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(segment.sourceText),
+        ),
+      ),
     );
   }
 

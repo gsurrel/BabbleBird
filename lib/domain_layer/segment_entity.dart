@@ -1,14 +1,16 @@
 class SegmentEntity {
+  SegmentType type;
   String id;
   String sourceText;
   String translationText;
   String notes;
 
   SegmentEntity({
+    required this.type,
     required this.id,
     required this.sourceText,
     required this.translationText,
-    this.notes = '',
+    required this.notes,
   });
 
   void updateTranslation(String newTranslation) {
@@ -18,4 +20,9 @@ class SegmentEntity {
   void setNotes(String newNotes) {
     notes = newNotes;
   }
+}
+
+enum SegmentType {
+  title,
+  body,
 }
