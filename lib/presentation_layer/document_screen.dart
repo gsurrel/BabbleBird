@@ -19,12 +19,32 @@ class _DocumentScreenState extends State<DocumentScreen> {
   final FlutterListViewController _listViewController =
       FlutterListViewController();
 
+  late final DocumentProvider _documentProvider =
+      Provider.of<DocumentProvider>(context, listen: false);
+
   @override
   void initState() {
     super.initState();
-    final documentProvider =
-        Provider.of<DocumentProvider>(context, listen: false);
-    documentProvider.fetchDocument('documentId');
+    // Add a listener to the list view controller
+    _listViewController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    // Remove the listener when the state object is disposed
+    _listViewController.removeListener(_handleScroll);
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    // Call setState to trigger a repaint of the widget
+    setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _documentProvider.fetchDocument('documentId');
   }
 
   @override
@@ -114,17 +134,12 @@ class _DocumentScreenState extends State<DocumentScreen> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTapDown: (details) => _handleTapOnNavigationPanel(details, document),
-      child: SizedBox(
-        width: 20,
-        height: double.infinity,
-        child: SizedBox.expand(
-          child: CustomPaint(
-            painter: _BarPainter(
-                itemsHeights:
-                    document.segments.map((e) => e.sourceText.codeUnits.length),
-                controller: _listViewController),
-          ),
-        ),
+      child: CustomPaint(
+        size: const Size(20, double.infinity),
+        painter: _BarPainter(
+            itemsHeights:
+                document.segments.map((e) => e.sourceText.codeUnits.length),
+            controller: _listViewController),
       ),
     );
   }
@@ -167,24 +182,15 @@ class _BarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint1 = Paint()..color = Colors.grey.withOpacity(0.2);
-    final paint2 = Paint()..color = Colors.grey.withOpacity(0.3);
-    final paint3 = Paint()..color = Colors.amber;
+    final paintEven = Paint()..color = Colors.grey.withOpacity(0.2);
+    final paintOdd = Paint()..color = Colors.grey.withOpacity(0.3);
 
     final scaling = size.height / itemsHeights.fold(0, (sum, val) => sum + val);
     final scaledHeights = itemsHeights.map((h) => h * scaling);
     double previousPosition = 0;
 
-    print(controller.offset);
     scaledHeights.toList().asMap().forEach((i, height) {
-      final isInView = controller.offset >= previousPosition &&
-          controller.offset <= previousPosition + size.height;
-
-      final paint = isInView
-          ? paint3
-          : i % 2 == 0
-              ? paint1
-              : paint2;
+      final paint = i % 2 == 0 ? paintEven : paintOdd;
 
       canvas.drawRect(
         Rect.fromLTWH(0, previousPosition, size.width, height),
@@ -195,7 +201,8 @@ class _BarPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant _BarPainter oldDelegate) {
+    return itemsHeights != oldDelegate.itemsHeights ||
+        controller.offset != oldDelegate.controller.offset;
   }
 }
