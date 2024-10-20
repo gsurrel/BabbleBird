@@ -21,17 +21,25 @@ class RandomDocumentDataSource implements DataSource {
     // Use the document id to seed the random number generator
     final random = Random(id.hashCode);
 
-    List<SegmentModel> segments = List.generate(numParagraphs, (index) {
-      int numWords = minWordsPerParagraph +
-          random.nextInt(maxWordsPerParagraph - minWordsPerParagraph + 1);
-      String sourceText = _faker.lorem.words(numWords).join(' ');
-      return SegmentModel(
-          id: 'segment_$index', sourceText: sourceText, translationText: '');
-    });
+    List<SegmentModel> segments = List.generate(
+      numParagraphs,
+      (index) {
+        final numWords = minWordsPerParagraph +
+            random.nextInt(
+              maxWordsPerParagraph - minWordsPerParagraph + 1,
+            );
+        String sourceText = _faker.lorem.words(numWords).join(' ');
+        return SegmentModel(
+          id: 'segment_$index',
+          sourceText: sourceText,
+          translationText: '',
+        );
+      },
+    );
 
     // Insert chapter titles
     for (int i = 0; i < 10; i++) {
-      int insertAt = (i * segments.length / 10).floor();
+      final insertAt = (i * segments.length / 10).floor();
       String chapterTitleText = _faker.lorem.words(8).join(' ');
       segments.insert(
         insertAt,

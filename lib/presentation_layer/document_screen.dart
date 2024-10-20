@@ -3,9 +3,10 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:provider/provider.dart';
 import 'package:tao_cat/domain_layer/document_entity.dart';
 import 'package:tao_cat/domain_layer/document_provider.dart';
-import 'package:tao_cat/domain_layer/segment_entity.dart';
+import 'package:tao_cat/presentation_layer/document_list_view.dart';
+import 'package:tao_cat/presentation_layer/navigation_panel.dart';
 
-/// A screen that displays a document.
+/// Displays a document.
 ///
 /// The document is fetched from a [DocumentProvider] and displayed in a list view.
 class DocumentScreen extends StatefulWidget {
@@ -48,199 +49,20 @@ class _DocumentScreenState extends State<DocumentScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<DocumentProvider>(
-      builder: (context, documentProvider, child) {
-        return _buildDocumentView(documentProvider.document);
-      },
-    );
-  }
-
-  /// Builds the view for the document.
-  ///
-  /// If the document is null, a loading indicator is shown.
-  /// Otherwise, the document is displayed in a list view.
-  Widget _buildDocumentView(DocumentEntity? document) {
-    return switch (document) {
-      null => const CircularProgressIndicator(),
-      DocumentEntity() => Row(
-          children: [
-            _buildDocumentListView(document),
-            _buildNavigationPanel(document),
-          ],
-        ),
-    };
-  }
-
-  /// Builds the list view for the document.
-  ///
-  /// Each segment of the document is displayed in a row with the source text and a text field for the translation.
-  Widget _buildDocumentListView(DocumentEntity document) {
-    return Expanded(
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: FlutterListView.builder(
-          controller: _listViewController,
-          itemCount: document.segments.length,
-          itemBuilder: (context, index) {
-            final segment = document.segments[index];
-            return _buildSegmentRow(segment);
-          },
-        ),
-      ),
-    );
-  }
-
-  /// Builds a row for a segment.
-  ///
-  /// The row contains the source text in a card and a text field for the translation.
-  Widget _buildSegmentRow(SegmentEntity segment) {
-    return Row(
-      children: [
-        switch (segment.type) {
-          SegmentType.title => _buildSourceChapterTitle(segment),
-          SegmentType.body => _buildSourceTextCard(segment),
+  Widget build(BuildContext context) => Consumer<DocumentProvider>(
+        builder: (
+          context,
+          documentProvider,
+          child,
+        ) =>
+            switch (documentProvider.document) {
+          final DocumentEntity doc => Row(
+              children: [
+                Expanded(child: DocumentListView(document: doc)),
+                NavigationPanel(document: doc),
+              ],
+            ),
+          null => const CircularProgressIndicator(),
         },
-        _buildTranslationTextField(segment),
-      ],
-    );
-  }
-
-  /// Builds a title for the source text of a segment.
-  Widget _buildSourceChapterTitle(SegmentEntity segment) {
-    return Expanded(
-      child: Card(
-        color: Colors.amber,
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(segment.sourceText),
-        ),
-      ),
-    );
-  }
-
-  /// Builds a card for the source text of a segment.
-  Widget _buildSourceTextCard(SegmentEntity segment) {
-    return Expanded(
-      child: Card(
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(segment.sourceText),
-        ),
-      ),
-    );
-  }
-
-  /// Builds a text field for the translation of a segment.
-  Widget _buildTranslationTextField(SegmentEntity segment) {
-    return Expanded(
-      child: TextField(
-        controller: TextEditingController(text: segment.translationText),
-        onChanged: segment.updateTranslation,
-        maxLines: null,
-      ),
-    );
-  }
-
-  /// Builds a navigation panel for the document.
-  ///
-  /// The panel allows the user to tap on a position to scroll to the corresponding segment in the document.
-  Widget _buildNavigationPanel(DocumentEntity document) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTapDown: (details) => _handleTapOnNavigationPanel(details, document),
-      child: CustomPaint(
-        size: const Size(20, double.infinity),
-        painter: _BarPainter(
-          items: document.segments,
-          controller: _listViewController,
-        ),
-      ),
-    );
-  }
-
-  /// Handles a tap on the navigation panel.
-  ///
-  /// The tapped position is used to calculate the index of the segment to scroll to.
-  void _handleTapOnNavigationPanel(
-    TapDownDetails details,
-    DocumentEntity document,
-  ) {
-    final charLengths = document.segments.map(
-      (segment) =>
-          segment.sourceText.codeUnits.length *
-          switch (segment.type) {
-            SegmentType.title => 10,
-            SegmentType.body => 1,
-          },
-    );
-    final totalHeight = charLengths.fold(0, (sum, val) => sum + val);
-    final scaling = context.size!.height / totalHeight;
-
-    double tappedPosition = details.localPosition.dy / scaling;
-
-    final before = charLengths.takeWhile((height) {
-      if (height < tappedPosition) {
-        tappedPosition -= height;
-        return true;
-      }
-      return false;
-    });
-
-    _listViewController.sliverController.animateToIndex(
-      before.length,
-      duration: Durations.medium1,
-      curve: Curves.easeInOutCubic,
-    );
-  }
-}
-
-/// A custom painter for the navigation panel.
-///
-/// The panel is painted with alternating colors for each segment of the document.
-class _BarPainter extends CustomPainter {
-  final List<SegmentEntity> items;
-  final FlutterListViewController controller;
-
-  _BarPainter({required this.items, required this.controller});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paintEven = Paint()..color = Colors.grey.withOpacity(0.2);
-    final paintOdd = Paint()..color = Colors.grey.withOpacity(0.3);
-    final paintTitle = Paint()..color = Colors.amber;
-
-    final charLengths = items.map(
-      (segment) =>
-          segment.sourceText.codeUnits.length *
-          switch (segment.type) {
-            SegmentType.title => 10,
-            SegmentType.body => 1,
-          },
-    );
-    final scaling = size.height / charLengths.fold(0, (sum, val) => sum + val);
-    final scaledHeights = charLengths.map((h) => h * scaling);
-    double previousPosition = 0;
-
-    scaledHeights.toList().asMap().forEach((i, height) {
-      final paint = items[i].type == SegmentType.title
-          ? paintTitle
-          : i % 2 == 0
-              ? paintEven
-              : paintOdd;
-      canvas.drawRect(
-        Rect.fromLTWH(0, previousPosition, size.width, height),
-        paint,
       );
-      previousPosition += height;
-    });
-  }
-
-  @override
-  bool shouldRepaint(covariant _BarPainter oldDelegate) {
-    return items != oldDelegate.items ||
-        controller.offset != oldDelegate.controller.offset;
-  }
 }
