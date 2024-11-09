@@ -15,9 +15,13 @@ class DocumentProvider extends ChangeNotifier {
     final segments = documentModel.segments
         .map(
           (segmentModel) => SegmentEntity(
-            type: segmentModel.sourceText.split(' ').length <= 10
-                ? SegmentType.title
-                : SegmentType.body,
+            type: switch (segmentModel.isTitle) {
+              null => segmentModel.sourceText.split(' ').length <= 10
+                  ? SegmentType.title
+                  : SegmentType.body,
+              true => SegmentType.title,
+              false => SegmentType.body,
+            },
             id: segmentModel.id,
             sourceText: segmentModel.sourceText,
             translationText: segmentModel.translationText,
