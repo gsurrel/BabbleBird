@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:provider/provider.dart';
+import 'package:tao_cat/data_access_layer/data_sources/file_document_data_source.dart';
+import 'package:tao_cat/data_access_layer/document_repository.dart';
 import 'package:tao_cat/domain_layer/document_entity.dart';
 import 'package:tao_cat/domain_layer/document_provider.dart';
 import 'package:tao_cat/domain_layer/segment_entity.dart';
@@ -23,6 +25,8 @@ class _DocumentScreenState extends State<DocumentScreen> {
 
   late final DocumentProvider _documentProvider =
       Provider.of<DocumentProvider>(context, listen: false);
+
+  bool _swapped = true;
 
   @override
   void initState() {
@@ -48,40 +52,48 @@ class _DocumentScreenState extends State<DocumentScreen> {
 
   @override
   Widget build(BuildContext context) => Consumer<DocumentProvider>(
-        builder: (context, documentProvider, child) =>
-            switch (documentProvider.document) {
-          null => const CircularProgressIndicator(),
-          final DocumentEntity document => Row(
-              children: [
-                Expanded(
-                  child: ScrollConfiguration(
-                    behavior: ScrollConfiguration.of(context)
-                        .copyWith(scrollbars: false),
-                    child: FlutterListView.builder(
-                      controller: _listViewController,
-                      itemCount: document.segments.length,
-                      itemBuilder: (context, index) =>
-                          switch (document.segments[index]) {
-                        final SegmentEntity segment => SegmentWidget(segment),
-                      },
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTapDown: (details) =>
-                      _handleTapOnNavigationPanel(details, document),
-                  child: CustomPaint(
-                    size: const Size(20, double.infinity),
-                    painter: _BarPainter(
-                      items: document.segments,
-                      controller: _listViewController,
-                    ),
-                  ),
-                ),
-              ],
+        builder: (context, documentProvider, child) => Column(
+          children: [
+            ElevatedButton.icon(
+              onPressed: () => setState(() => _swapped = !_swapped),
+              icon: const Icon(Icons.swap_horiz),
+              label: const Text('Swap'),
             ),
-        },
+            switch (documentProvider.document) {
+              null => const CircularProgressIndicator(),
+              final DocumentEntity document => Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context)
+                              .copyWith(scrollbars: false),
+                          child: FlutterListView.builder(
+                            controller: _listViewController,
+                            itemCount: document.segments.length,
+                            itemBuilder: (context, index) =>
+                                switch (document.segments[index]) {
+                              final SegmentEntity segment =>
+                                SegmentWidget(segment, swapped: _swapped),
+                            },
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTapDown: (details) =>
+                            _handleTapOnNavigationPanel(details, document),
+                        child: DocumentMap(
+                          document: document,
+                          listViewController: _listViewController,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            },
+          ],
+        ),
       );
 
   void _handleTapOnNavigationPanel(
@@ -113,6 +125,28 @@ class _DocumentScreenState extends State<DocumentScreen> {
       before.length,
       duration: Durations.medium1,
       curve: Curves.easeInOutCubic,
+    );
+  }
+}
+
+class DocumentMap extends StatelessWidget {
+  const DocumentMap({
+    super.key,
+    required this.document,
+    required FlutterListViewController listViewController,
+  }) : _listViewController = listViewController;
+
+  final DocumentEntity document;
+  final FlutterListViewController _listViewController;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(20, double.infinity),
+      painter: _BarPainter(
+        items: document.segments,
+        controller: _listViewController,
+      ),
     );
   }
 }

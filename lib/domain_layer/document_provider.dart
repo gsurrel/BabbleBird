@@ -5,10 +5,11 @@ import 'package:tao_cat/domain_layer/segment_entity.dart';
 
 class DocumentProvider extends ChangeNotifier {
   DocumentProvider({required this.documentRepository});
+
   final DocumentRepository documentRepository;
-  DocumentEntity? _document;
 
   DocumentEntity? get document => _document;
+  DocumentEntity? _document;
 
   Future<void> fetchDocument(String id) async {
     final documentModel = await documentRepository.getDocument(id);
@@ -28,7 +29,9 @@ class DocumentProvider extends ChangeNotifier {
           ),
         )
         .toList();
+
     _document = DocumentEntity(id: documentModel.id, segments: segments);
+
     notifyListeners();
   }
 }
