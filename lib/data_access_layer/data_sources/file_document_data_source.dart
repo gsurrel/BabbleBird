@@ -1,115 +1,65 @@
-import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:meta/meta.dart';
 import 'package:tao_cat/data_access_layer/data_sources/data_source.dart';
 import 'package:tao_cat/data_access_layer/document_model.dart';
-import 'package:tao_cat/data_access_layer/segment_model.dart';
+import 'package:tao_cat/data_access_layer/format_handlers/flat_file_format_handler.dart';
+import 'package:tao_cat/data_access_layer/format_handlers/format_handler.dart';
+import 'package:tao_cat/data_access_layer/format_handlers/markdown_format_handler.dart';
 
-typedef SplittedText = List<({int chapter, int paragraph, String text})>;
-
-@immutable
 class FileDocumentDataSource implements DataSource {
-  @override
-  Future<DocumentModel> fetchDocument(String path) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: 'Select both the source and destination files',
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: ['txt'],
-      withData: true,
-    );
+  FileDocumentDataSource(this.filePickerResult);
 
-    final filesContents = switch (result) {
+  late final FormatHandler formatHandler;
+
+  FilePickerResult? filePickerResult;
+
+  @override
+  Future<DocumentModel> loadDocument() async {
+    // Handle the result of the file picker
+    final source = switch (filePickerResult) {
       FilePickerResult(
-        files: [
-          PlatformFile(bytes: final Uint8List source),
-          PlatformFile(bytes: final Uint8List destination)
-        ]
+        files: [PlatformFile(:final Uint8List bytes, :final String extension)]
       ) =>
         (
-          source: splitIntoSegments(utf8.decode(source)),
-          destination: splitIntoSegments(utf8.decode(destination)),
+          bytes: bytes,
+          extension: extension,
+        ),
+      FilePickerResult(files: [PlatformFile(bytes: null)]) =>
+        throw UnimplementedError(
+          'Not handling unread files',
         ),
       null => throw UnimplementedError('Not handling canceled pick'),
-      FilePickerResult(files: List<PlatformFile>()) => throw UnimplementedError(
-          'Not handling more or less than two selected files',
+      FilePickerResult(files: List()) => throw UnimplementedError(
+          'Not handling more or less than one selected file',
         ),
     };
 
-    return DocumentModel(
-      id: path,
-      segments: mergeLists(
-        filesContents.source,
-        filesContents.destination,
-      ),
-    );
+    // Register the content parser
+    formatHandler = switch (source.extension) {
+      'md' => MarkdownFormatHandler(),
+      'txt' => FlatFileFormatHandler(),
+      final format => throw UnsupportedError('Format $format unknown')
+    };
+
+    // Return the parsed document
+    return formatHandler.parse(source.bytes);
   }
 
-  @useResult
-  SplittedText splitIntoSegments(String raw) => raw
-      .split('\n\n')
-      .asMap()
-      .map(
-        (chapterNumber, block) => MapEntry(
-          chapterNumber,
-          block
-              .split('\n')
-              .asMap()
-              .map(
-                (paragraphNumber, text) => MapEntry(
-                  paragraphNumber,
-                  (
-                    chapter: chapterNumber,
-                    paragraph: paragraphNumber,
-                    text: text,
-                  ),
-                ),
-              )
-              .values
-              .toList(),
-        ),
-      )
-      .values
-      .toList()
-      .expand((chapter) => chapter)
-      .toList();
+  @override
+  Future<void> saveDocument(DocumentModel document) async {
+    print('Future<void> saveDocument');
+    // Use the handler to serialize the document
+    Uint8List content = FlatFileFormatHandler().serialize(document);
 
-  @useResult
-  List<SegmentModel> mergeLists(SplittedText list1, SplittedText list2) {
-    List<SegmentModel> mergedList = [];
-    int i = 0, j = 0;
-
-    while (i < list1.length || j < list2.length) {
-      var item1 = i < list1.length ? list1[i] : null;
-      var item2 = j < list2.length ? list2[j] : null;
-
-      // If an item is too far in advance, nullify it.
-      if (item1 != null && item2 != null) {
-        if (item1.chapter < item2.chapter ||
-            (item1.chapter == item2.chapter &&
-                item1.paragraph < item2.paragraph)) {
-          item2 = null;
-        } else if (item2.chapter < item1.chapter ||
-            (item2.chapter == item1.chapter &&
-                item2.paragraph < item1.paragraph)) {
-          item1 = null;
-        }
-      }
-
-      mergedList.add(SegmentModel(
-        id: '${item1?.chapter ?? item2?.chapter}.'
-            '${item1?.paragraph ?? item2?.paragraph}',
-        sourceText: item1?.text ?? '',
-        translationText: item2?.text ?? '',
-        isTitle: (item1?.paragraph == 0 || item2?.paragraph == 0),
-      ));
-
-      // Advance the indices.
-      if (item1 != null) i++;
-      if (item2 != null) j++;
+    // Write the bytes back to the file
+    if (filePickerResult
+        case FilePickerResult(
+          files: [PlatformFile(:final String path)],
+        )) {
+      final file = File(path);
+      await file.writeAsBytes(content);
     }
-    return mergedList;
   }
 }

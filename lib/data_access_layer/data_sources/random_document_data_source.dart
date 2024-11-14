@@ -1,10 +1,11 @@
 import 'dart:math';
 
 import 'package:faker/faker.dart';
-import 'package:flutter/material.dart';
 import 'package:tao_cat/data_access_layer/data_sources/data_source.dart';
 import 'package:tao_cat/data_access_layer/document_model.dart';
 import 'package:tao_cat/data_access_layer/segment_model.dart';
+
+import 'package:flutter/foundation.dart';
 
 @immutable
 class RandomDocumentDataSource implements DataSource {
@@ -17,13 +18,16 @@ class RandomDocumentDataSource implements DataSource {
   final int numParagraphs;
   final int minWordsPerParagraph;
   final int maxWordsPerParagraph;
+
   final Faker _faker = Faker();
 
   @override
-  Future<DocumentModel> fetchDocument(String id) async {
-    // Use the document id to seed the random number generator
-    final random = Random(id.hashCode);
+  Future<DocumentModel> loadDocument() async {
+    final random = Random(
+      (numParagraphs + minWordsPerParagraph + maxWordsPerParagraph).hashCode,
+    );
 
+    // Generate the text
     final segments = List<SegmentModel>.generate(
       numParagraphs,
       (index) {
@@ -33,27 +37,30 @@ class RandomDocumentDataSource implements DataSource {
             );
         final sourceText = _faker.lorem.words(numWords).join(' ');
         return SegmentModel(
-          id: 'segment_$index',
           sourceText: sourceText,
-          translationText: '',
+          isTitle: false,
         );
       },
     );
 
     // Insert chapter titles
-    for (var i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
       final insertAt = (i * segments.length / 10).floor();
       final chapterTitleText = _faker.lorem.words(8).join(' ');
       segments.insert(
         insertAt,
         SegmentModel(
-          id: 'chapter_$i',
           sourceText: chapterTitleText,
-          translationText: '',
+          isTitle: true,
         ),
       );
     }
 
-    return DocumentModel(id: id, segments: segments);
+    return DocumentModel(segments: segments, originalContent: Uint8List(0));
+  }
+
+  @override
+  Future<void> saveDocument(DocumentModel document) async {
+    throw UnimplementedError('Saving random documents is not supported.');
   }
 }

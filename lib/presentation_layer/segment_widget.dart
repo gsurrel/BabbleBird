@@ -38,11 +38,13 @@ class SegmentWidget extends StatelessWidget {
                 Expanded(
                   child: TextField(
                     controller: TextEditingController(
-                      text: segment.translationText,
+                      text: 'segment.translationText',
                     ),
-                    onChanged: (text) {
+                    onChanged: null
+                    /*(text) {
                       segment.translationText = text;
-                    },
+                    }*/
+                    ,
                     maxLines: null,
                     expands: true,
                   ),
