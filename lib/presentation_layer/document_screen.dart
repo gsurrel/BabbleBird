@@ -18,19 +18,18 @@ class DocumentScreen extends StatefulWidget {
 }
 
 class _DocumentScreenState extends State<DocumentScreen> {
-  final FlutterListViewController _listViewController =
-      FlutterListViewController();
+  final FlutterListViewController _controller = FlutterListViewController();
   bool _swapped = true;
 
   @override
   void initState() {
     super.initState();
-    _listViewController.addListener(_handleScroll);
+    _controller.addListener(_handleScroll);
   }
 
   @override
   void dispose() {
-    _listViewController.removeListener(_handleScroll);
+    _controller.removeListener(_handleScroll);
     super.dispose();
   }
 
@@ -77,12 +76,20 @@ class _DocumentScreenState extends State<DocumentScreen> {
                             behavior: ScrollConfiguration.of(context)
                                 .copyWith(scrollbars: false),
                             child: FlutterListView.builder(
-                              controller: _listViewController,
+                              controller: _controller,
                               itemCount: document.segments.length,
-                              itemBuilder: (context, index) =>
-                                  switch (document.segments[index]) {
-                                final SegmentEntity segment =>
-                                  SegmentWidget(segment, swapped: _swapped),
+                              itemBuilder: (context, index) {
+                                final segment = document.segments[index];
+                                return SegmentWidget(
+                                  segment,
+                                  swapped: _swapped,
+                                  onTextChanged: (newText) {
+                                    final documentBloc =
+                                        context.read<DocumentBloc>();
+                                    documentBloc
+                                        .add(EditDocumentEvent(newText, index));
+                                  },
+                                );
                               },
                             ),
                           ),
@@ -93,13 +100,19 @@ class _DocumentScreenState extends State<DocumentScreen> {
                               _handleTapOnNavigationPanel(details, document),
                           child: DocumentMap(
                             document: document,
-                            listViewController: _listViewController,
+                            controller: _controller,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ],
+              ),
+            DocumentSaving() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+            DocumentSaved() => const Center(
+                child: Text('Document saved successfully.'),
               ),
           };
         },
@@ -133,7 +146,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
       return false;
     });
 
-    _listViewController.sliverController.animateToIndex(
+    _controller.sliverController.animateToIndex(
       before.length,
       duration: Durations.medium1,
       curve: Curves.easeInOutCubic,

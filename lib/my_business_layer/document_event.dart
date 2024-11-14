@@ -6,16 +6,16 @@ import 'package:tao_cat/domain_layer/source.dart';
 /// The base class for all document-related events.
 sealed class DocumentEvent {}
 
-/// Event for loading a document from a specified source.
+/// Event emitted when a document needs to be loaded from a [Source].
 @immutable
 class LoadDocumentEvent extends DocumentEvent {
   LoadDocumentEvent(this.source);
 
-  /// The source from which the document should be loaded.
+  /// The original from which the document should be loaded.
   final Source source;
 }
 
-/// Event for editing a segment of a document.
+/// Event emitted when a segment of the document needs to be edited.
 @immutable
 class EditDocumentEvent extends DocumentEvent {
   EditDocumentEvent(this.newText, this.segmentIndex);
@@ -27,7 +27,7 @@ class EditDocumentEvent extends DocumentEvent {
   final int segmentIndex;
 }
 
-/// Event for saving the current document.
+/// Event emitted when the current document state needs to be persisted.
 @immutable
 class SaveDocumentEvent extends DocumentEvent {
   SaveDocumentEvent();

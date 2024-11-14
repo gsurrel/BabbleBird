@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:tao_cat/domain_layer/document_entity.dart';
 import 'package:tao_cat/domain_layer/source.dart';
 import 'package:tao_cat/domain_layer/use_cases.dart';
 
-/// A service that encapsulates document-related use cases.
+/// Service class that coordinates document operations between BLoCs and use cases.
+/// This class serves as a facade for document-related operations in the domain layer,
+/// abstracting the complexity of use cases from the BLoC layer.
 @immutable
 class DocumentService {
   final LoadDocument loadDocumentUseCase;

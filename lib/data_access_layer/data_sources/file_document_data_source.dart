@@ -51,7 +51,7 @@ class FileDocumentDataSource implements DataSource {
   @override
   Future<void> saveDocument(DocumentModel document) async {
     // Use the handler to serialize the document
-    Uint8List content = FlatFileFormatHandler().serialize(document);
+    Uint8List content = formatHandler.serialize(document);
 
     // Write the bytes back to the file
     if (filePickerResult

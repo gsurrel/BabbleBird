@@ -8,14 +8,14 @@ class DocumentMap extends StatelessWidget {
   const DocumentMap({
     super.key,
     required this.document,
-    required FlutterListViewController listViewController,
-  }) : _listViewController = listViewController;
+    required this.controller,
+  });
 
   /// The document entity containing the segments.
   final DocumentEntity document;
 
   /// The controller for the list view.
-  final FlutterListViewController _listViewController;
+  final FlutterListViewController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class DocumentMap extends StatelessWidget {
       size: const Size(20, double.infinity),
       painter: _BarPainter(
         items: document.segments,
-        controller: _listViewController,
+        controller: controller,
       ),
     );
   }

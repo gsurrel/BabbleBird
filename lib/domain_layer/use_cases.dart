@@ -42,10 +42,17 @@ class EditDocument {
       throw RangeError('Segment index out of range');
     }
 
-    document.segments[segmentIndex].sourceText = newText;
+    final segmentToEdit = document.segments[segmentIndex];
+    final editedDocument = DocumentEntity(
+      segments: document.segments,
+      model: document.model,
+    )..segments[segmentIndex] = SegmentEntity(
+        type: segmentToEdit.type,
+        sourceText: newText,
+      );
 
     // Return the updated document
-    return document;
+    return editedDocument;
   }
 }
 

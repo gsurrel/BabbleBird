@@ -6,11 +6,15 @@ import 'package:tao_cat/data_access_layer/segment_model.dart';
 /// An immutable model representing a document.
 @immutable
 class DocumentModel {
-  const DocumentModel({required this.segments, required this.originalContent});
+  const DocumentModel({
+    required List<SegmentModel> segments,
+    required this.originalContent,
+  }) : _segments = segments;
 
-  /// The list of segments in the document.
-  final List<SegmentModel> segments;
+  /// The parsed segments in the document.
+  List<SegmentModel> get segments => List.unmodifiable(_segments);
+  final List<SegmentModel> _segments;
 
-  /// The original content of the document.
+  /// The original binary content of the document.
   final Uint8List originalContent;
 }

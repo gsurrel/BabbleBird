@@ -21,3 +21,19 @@ class DocumentLoaded extends DocumentState {
   /// The loaded document.
   final DocumentEntity document;
 }
+
+@immutable
+class DocumentSaving extends DocumentState {
+  DocumentSaving(this.document);
+
+  /// The loaded document.
+  final DocumentEntity document;
+}
+
+@immutable
+class DocumentSaved extends DocumentState {
+  DocumentSaved(this.document);
+
+  /// The loaded document.
+  final DocumentEntity document;
+}

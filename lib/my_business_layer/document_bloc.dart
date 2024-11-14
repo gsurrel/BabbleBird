@@ -28,7 +28,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     /// Handles the event of saving a document.
     on<SaveDocumentEvent>((event, emit) async {
       if (state case DocumentLoaded(:final document)) {
+        emit(DocumentSaving(document));
         await documentService.saveDocument(document);
+        emit(DocumentSaved(document));
       }
     });
   }

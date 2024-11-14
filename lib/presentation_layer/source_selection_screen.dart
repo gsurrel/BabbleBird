@@ -7,7 +7,7 @@ import 'package:tao_cat/my_business_layer/document_event.dart';
 import 'package:tao_cat/my_business_layer/document_state.dart';
 import 'package:tao_cat/presentation_layer/document_screen.dart';
 
-/// A screen for selecting the source of the document.
+/// A screen for selecting the originl of the document.
 class SourceSelectionScreen extends StatelessWidget {
   const SourceSelectionScreen({super.key});
 
@@ -60,11 +60,16 @@ class SourceSelectionScreen extends StatelessWidget {
                     withData: true,
                   );
 
-                  if (result != null && result.files.isNotEmpty) {
-                    if (context.mounted) {
+                  if (context.mounted) {
+                    if (result != null && result.files.isNotEmpty) {
                       context.read<DocumentBloc>().add(
                             LoadDocumentEvent(FileSource(result)),
                           );
+                    } else {
+                      // Notify the user that no file was selected
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No file selected.')),
+                      );
                     }
                   }
                 },
