@@ -4,6 +4,7 @@ import 'package:tao_cat/data_access_layer/document_model.dart';
 import 'package:tao_cat/data_access_layer/format_handlers/format_handler.dart';
 import 'package:tao_cat/data_access_layer/segment_model.dart';
 
+/// A format handler for parsing and serializing markdown documents.
 class MarkdownFormatHandler implements FormatHandler {
   @override
   DocumentModel parse(Uint8List content) {

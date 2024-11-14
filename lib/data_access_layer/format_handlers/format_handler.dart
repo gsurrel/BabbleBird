@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:tao_cat/data_access_layer/document_model.dart';
 import 'package:tao_cat/data_access_layer/segment_model.dart';
 
+/// An interface for format handlers that parse and serialize document content.
 abstract interface class FormatHandler {
   @useResult
   DocumentModel parse(Uint8List content);

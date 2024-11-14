@@ -8,6 +8,7 @@ import 'package:tao_cat/data_access_layer/format_handlers/flat_file_format_handl
 import 'package:tao_cat/data_access_layer/format_handlers/format_handler.dart';
 import 'package:tao_cat/data_access_layer/format_handlers/markdown_format_handler.dart';
 
+/// A data source for loading and saving documents from files.
 class FileDocumentDataSource implements DataSource {
   FileDocumentDataSource(this.filePickerResult);
 
@@ -49,7 +50,6 @@ class FileDocumentDataSource implements DataSource {
 
   @override
   Future<void> saveDocument(DocumentModel document) async {
-    print('Future<void> saveDocument');
     // Use the handler to serialize the document
     Uint8List content = FlatFileFormatHandler().serialize(document);
 

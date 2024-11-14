@@ -1,13 +1,15 @@
 import 'package:tao_cat/domain_layer/document_entity.dart';
 import 'package:tao_cat/domain_layer/document_repository.dart';
 import 'package:tao_cat/domain_layer/segment_entity.dart';
-import 'package:tao_cat/main.dart';
+import 'package:tao_cat/domain_layer/source.dart';
 
+/// A use case for loading a document from a repository.
 class LoadDocument {
-  final DocumentRepository repository;
-
   LoadDocument(this.repository);
 
+  final DocumentRepository repository;
+
+  /// Executes the use case to load a document from the specified source.
   Future<DocumentEntity> execute(Source source) async {
     final documentModel = await repository.loadDocument(source);
 
@@ -27,7 +29,9 @@ class LoadDocument {
   }
 }
 
+/// A use case for editing a segment within a document.
 class EditDocument {
+  /// Executes the use case to edit the specified segment in the document.
   Future<DocumentEntity> execute(
     DocumentEntity document,
     String newText,
@@ -45,13 +49,14 @@ class EditDocument {
   }
 }
 
+/// A use case for saving a document to a repository.
 class SaveDocument {
-  final DocumentRepository repository;
-
   SaveDocument(this.repository);
 
+  final DocumentRepository repository;
+
+  /// Executes the use case to save the document.
   Future<void> execute(DocumentEntity document) async {
-    print('Future<void> execute');
     await repository.saveDocument(document.model);
   }
 }

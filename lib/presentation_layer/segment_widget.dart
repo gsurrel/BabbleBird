@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:tao_cat/domain_layer/segment_entity.dart';
 
+/// A widget that displays a segment of the document with its source text and translation.
 class SegmentWidget extends StatelessWidget {
   const SegmentWidget(this.segment, {super.key, required this.swapped});
 
+  /// The segment entity to display.
   final SegmentEntity segment;
 
+  /// Indicates if the text fields should be swapped.
   final bool swapped;
 
   @override
@@ -38,13 +41,9 @@ class SegmentWidget extends StatelessWidget {
                 Expanded(
                   child: TextField(
                     controller: TextEditingController(
-                      text: 'segment.translationText',
+                      text: segment.type.toString(),
                     ),
-                    onChanged: null
-                    /*(text) {
-                      segment.translationText = text;
-                    }*/
-                    ,
+                    onChanged: null,
                     maxLines: null,
                     expands: true,
                   ),

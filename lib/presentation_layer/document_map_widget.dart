@@ -3,6 +3,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:tao_cat/domain_layer/document_entity.dart';
 import 'package:tao_cat/domain_layer/segment_entity.dart';
 
+/// A widget that displays a map of the document segments.
 class DocumentMap extends StatelessWidget {
   const DocumentMap({
     super.key,
@@ -10,7 +11,10 @@ class DocumentMap extends StatelessWidget {
     required FlutterListViewController listViewController,
   }) : _listViewController = listViewController;
 
+  /// The document entity containing the segments.
   final DocumentEntity document;
+
+  /// The controller for the list view.
   final FlutterListViewController _listViewController;
 
   @override
@@ -25,9 +29,14 @@ class DocumentMap extends StatelessWidget {
   }
 }
 
+/// A custom painter that paints a bar for each document segment.
 class _BarPainter extends CustomPainter {
   _BarPainter({required this.items, required this.controller});
+
+  /// The list of document segments to be painted.
   final List<SegmentEntity> items;
+
+  /// The controller for the list view.
   final FlutterListViewController controller;
 
   @override

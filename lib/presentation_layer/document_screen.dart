@@ -9,6 +9,7 @@ import 'package:tao_cat/my_business_layer/document_state.dart';
 import 'package:tao_cat/presentation_layer/document_map_widget.dart';
 import 'package:tao_cat/presentation_layer/segment_widget.dart';
 
+/// The main screen for displaying and editing a document.
 class DocumentScreen extends StatefulWidget {
   const DocumentScreen({super.key});
 
@@ -33,6 +34,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
     super.dispose();
   }
 
+  /// Handles the scroll event by updating the state.
   void _handleScroll() {
     setState(() {});
   }
@@ -46,7 +48,6 @@ class _DocumentScreenState extends State<DocumentScreen> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () {
-              print('Pressed save button!');
               context.read<DocumentBloc>().add(SaveDocumentEvent());
             },
           ),
@@ -106,6 +107,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
     );
   }
 
+  /// Handles tap events on the navigation panel to scroll to the corresponding segment.
   void _handleTapOnNavigationPanel(
     TapDownDetails details,
     DocumentEntity document,
@@ -121,7 +123,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
     final totalHeight = charLengths.fold(0, (sum, val) => sum + val);
     final scaling = context.size!.height / totalHeight;
 
-    var tappedPosition = details.localPosition.dy / scaling;
+    double tappedPosition = details.localPosition.dy / scaling;
 
     final before = charLengths.takeWhile((height) {
       if (height < tappedPosition) {

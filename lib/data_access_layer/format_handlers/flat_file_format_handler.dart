@@ -6,6 +6,7 @@ import 'package:tao_cat/data_access_layer/document_model.dart';
 import 'package:tao_cat/data_access_layer/format_handlers/format_handler.dart';
 import 'package:tao_cat/data_access_layer/segment_model.dart';
 
+/// A format handler for parsing and serializing flat file documents.
 @immutable
 class FlatFileFormatHandler implements FormatHandler {
   @override

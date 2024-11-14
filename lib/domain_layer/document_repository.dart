@@ -2,8 +2,9 @@ import 'package:tao_cat/data_access_layer/data_sources/data_source.dart';
 import 'package:tao_cat/data_access_layer/data_sources/file_document_data_source.dart';
 import 'package:tao_cat/data_access_layer/data_sources/random_document_data_source.dart';
 import 'package:tao_cat/data_access_layer/document_model.dart';
-import 'package:tao_cat/main.dart';
+import 'package:tao_cat/domain_layer/source.dart';
 
+/// A repository for managing document data.
 class DocumentRepository {
   DataSource? dataSource;
 
@@ -33,9 +34,7 @@ class DocumentRepository {
   /// Saves the provided document to the appropriate data source based on the
   /// provided source.
   Future<void> saveDocument(DocumentModel document) async {
-    print('Future<void> saveDocument');
     if (dataSource case final FileDocumentDataSource source) {
-      print('Is a $FileDocumentDataSource');
       await source.saveDocument(document);
     } else {
       throw UnsupportedError('Cannot save an unopened document');

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tao_cat/domain_layer/document_entity.dart';
+import 'package:tao_cat/domain_layer/source.dart';
 import 'package:tao_cat/domain_layer/use_cases.dart';
-import 'package:tao_cat/main.dart';
 
+/// A service that encapsulates document-related use cases.
 @immutable
 class DocumentService {
   final LoadDocument loadDocumentUseCase;
@@ -15,10 +16,12 @@ class DocumentService {
     required this.saveDocumentUseCase,
   });
 
+  /// Loads a document from the specified source.
   Future<DocumentEntity> loadDocument(Source source) async {
     return await loadDocumentUseCase.execute(source);
   }
 
+  /// Edits a document segment.
   Future<DocumentEntity> editDocument(
     DocumentEntity document,
     String newText,
@@ -27,8 +30,8 @@ class DocumentService {
     return await editDocumentUseCase.execute(document, newText, segmentIndex);
   }
 
+  /// Saves the document.
   Future<void> saveDocument(DocumentEntity document) async {
-    print('Future<void> saveDocument');
     await saveDocumentUseCase.execute(document);
   }
 }
