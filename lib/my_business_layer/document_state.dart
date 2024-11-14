@@ -22,18 +22,20 @@ class DocumentLoaded extends DocumentState {
   final DocumentEntity document;
 }
 
+/// The state when a document is being saved
 @immutable
 class DocumentSaving extends DocumentState {
   DocumentSaving(this.document);
 
-  /// The loaded document.
+  /// The document being saved.
   final DocumentEntity document;
 }
 
+/// The state when a document has been successfully saved.
 @immutable
 class DocumentSaved extends DocumentState {
   DocumentSaved(this.document);
 
-  /// The loaded document.
+  /// The saved document.
   final DocumentEntity document;
 }

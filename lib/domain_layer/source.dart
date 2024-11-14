@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 /// A base class for different types of document sources.
 sealed class Source {}
 
-/// A source representing a random document generator.
+/// Represents a random document generator.
 class RandomSource extends Source {
   RandomSource({
     required this.numParagraphs,
@@ -21,7 +21,7 @@ class RandomSource extends Source {
   final int maxWordsPerParagraph;
 }
 
-/// A source representing a file-based document.
+/// Represents a file-based document.
 class FileSource extends Source {
   FileSource(this.filePickerResult);
 

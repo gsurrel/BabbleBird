@@ -4,7 +4,7 @@ import 'package:tao_cat/data_access_layer/data_sources/random_document_data_sour
 import 'package:tao_cat/data_access_layer/document_model.dart';
 import 'package:tao_cat/domain_layer/source.dart';
 
-/// A repository for managing document data.
+/// For managing document data.
 class DocumentRepository {
   DataSource? dataSource;
 

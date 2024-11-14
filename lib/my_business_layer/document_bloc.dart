@@ -3,7 +3,7 @@ import 'package:tao_cat/domain_layer/document_service.dart';
 import 'package:tao_cat/my_business_layer/document_event.dart';
 import 'package:tao_cat/my_business_layer/document_state.dart';
 
-/// A bloc that handles events and states related to document operations.
+/// Handles events and states related to document operations.
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc(this.documentService) : super(DocumentInitial()) {
     /// Handles the event of loading a document.
@@ -35,6 +35,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     });
   }
 
-  /// The service that performs document-related operations.
+  /// Performs document-related operations.
   final DocumentService documentService;
 }

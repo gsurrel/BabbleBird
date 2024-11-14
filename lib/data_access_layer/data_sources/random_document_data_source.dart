@@ -7,7 +7,7 @@ import 'package:tao_cat/data_access_layer/segment_model.dart';
 
 import 'package:flutter/foundation.dart';
 
-/// A data source for generating random documents.
+/// For generating random documents.
 @immutable
 class RandomDocumentDataSource implements DataSource {
   RandomDocumentDataSource({

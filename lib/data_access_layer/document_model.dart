@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:tao_cat/data_access_layer/segment_model.dart';
 
-/// An immutable model representing a document.
+/// Represents a document.
 @immutable
 class DocumentModel {
   const DocumentModel({

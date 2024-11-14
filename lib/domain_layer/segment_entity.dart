@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-/// An entity representing a segment within a document.
+/// Represents a segment within a document.
 @immutable
 class SegmentEntity {
   const SegmentEntity({

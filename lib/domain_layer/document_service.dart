@@ -3,9 +3,9 @@ import 'package:tao_cat/domain_layer/document_entity.dart';
 import 'package:tao_cat/domain_layer/source.dart';
 import 'package:tao_cat/domain_layer/use_cases.dart';
 
-/// Service class that coordinates document operations between BLoCs and use cases.
-/// This class serves as a facade for document-related operations in the domain layer,
-/// abstracting the complexity of use cases from the BLoC layer.
+/// Coordinates document operations between BLoCs and use cases.
+///
+/// This class serves as a facade for document-related operations in the domain layer.
 @immutable
 class DocumentService {
   final LoadDocument loadDocumentUseCase;

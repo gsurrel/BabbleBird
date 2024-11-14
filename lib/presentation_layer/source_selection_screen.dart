@@ -7,7 +7,7 @@ import 'package:tao_cat/my_business_layer/document_event.dart';
 import 'package:tao_cat/my_business_layer/document_state.dart';
 import 'package:tao_cat/presentation_layer/document_screen.dart';
 
-/// A screen for selecting the originl of the document.
+/// For selecting the origin document.
 class SourceSelectionScreen extends StatelessWidget {
   const SourceSelectionScreen({super.key});
 

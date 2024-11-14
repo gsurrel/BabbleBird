@@ -8,7 +8,7 @@ import 'package:tao_cat/data_access_layer/format_handlers/flat_file_format_handl
 import 'package:tao_cat/data_access_layer/format_handlers/format_handler.dart';
 import 'package:tao_cat/data_access_layer/format_handlers/markdown_format_handler.dart';
 
-/// A data source for loading and saving documents from files.
+/// For loading and saving documents from files.
 class FileDocumentDataSource implements DataSource {
   FileDocumentDataSource(this.filePickerResult);
 
@@ -38,7 +38,7 @@ class FileDocumentDataSource implements DataSource {
     };
 
     // Register the content parser
-    formatHandler = switch (source.extension) {
+    formatHandler = switch (source.extension.toLowerCase()) {
       'md' => MarkdownFormatHandler(),
       'txt' => FlatFileFormatHandler(),
       final format => throw UnsupportedError('Format $format unknown')

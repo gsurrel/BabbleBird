@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tao_cat/domain_layer/segment_entity.dart';
 
-/// A widget that displays a segment of the document with its source text and translation.
-class SegmentWidget extends StatelessWidget {
+/// Displays a segment of the document with its source text and translation.
+class SegmentWidget extends StatefulWidget {
   const SegmentWidget(
     this.segment, {
     super.key,
@@ -10,19 +10,38 @@ class SegmentWidget extends StatelessWidget {
     required this.onTextChanged,
   });
 
-  /// The segment entity to display.
+  /// The segment to display.
   final SegmentEntity segment;
 
-  /// Indicates if the text fields should be swapped.
+  /// Whether the text fields should be swapped.
   final bool swapped;
 
-  /// Callback function when the text is changed.
+  /// For when the text is changed.
   final void Function(String) onTextChanged;
+
+  @override
+  State<SegmentWidget> createState() => _SegmentWidgetState();
+}
+
+class _SegmentWidgetState extends State<SegmentWidget> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.segment.sourceText);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: switch (segment.type) {
+      color: switch (widget.segment.type) {
         SegmentType.title => Colors.amber.withAlpha(100),
         SegmentType.body => null,
       },
@@ -31,17 +50,14 @@ class SegmentWidget extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         child: IntrinsicHeight(
           child: Row(
-            textDirection: swapped ? TextDirection.rtl : TextDirection.ltr,
+            textDirection:
+                widget.swapped ? TextDirection.rtl : TextDirection.ltr,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: TextField(
-                  controller: TextEditingController(
-                    text: segment.sourceText,
-                  ),
-                  onChanged: (text) {
-                    onTextChanged(text);
-                  },
+                  controller: _controller,
+                  onChanged: widget.onTextChanged,
                   maxLines: null,
                   expands: true,
                 ),
@@ -50,7 +66,7 @@ class SegmentWidget extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: TextEditingController(
-                    text: segment.type.toString(),
+                    text: widget.segment.type.toString(),
                   ),
                   onChanged: null,
                   maxLines: null,

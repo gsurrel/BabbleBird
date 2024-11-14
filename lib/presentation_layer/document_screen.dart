@@ -9,7 +9,7 @@ import 'package:tao_cat/my_business_layer/document_state.dart';
 import 'package:tao_cat/presentation_layer/document_map_widget.dart';
 import 'package:tao_cat/presentation_layer/segment_widget.dart';
 
-/// The main screen for displaying and editing a document.
+/// For displaying and editing a document.
 class DocumentScreen extends StatefulWidget {
   const DocumentScreen({super.key});
 
@@ -19,7 +19,7 @@ class DocumentScreen extends StatefulWidget {
 
 class _DocumentScreenState extends State<DocumentScreen> {
   final FlutterListViewController _controller = FlutterListViewController();
-  bool _swapped = true;
+  bool _swapped = false;
 
   @override
   void initState() {
@@ -40,83 +40,94 @@ class _DocumentScreenState extends State<DocumentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Document Editor'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: () {
-              context.read<DocumentBloc>().add(SaveDocumentEvent());
+    return BlocConsumer<DocumentBloc, DocumentState>(
+      listener: (context, state) {
+        if (state is DocumentSaved) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Document saved successfully')),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Document Editor'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.save),
+                onPressed: () {
+                  context.read<DocumentBloc>().add(SaveDocumentEvent());
+                },
+              ),
+            ],
+          ),
+          body: BlocBuilder<DocumentBloc, DocumentState>(
+            builder: (context, state) {
+              return switch (state) {
+                DocumentInitial() => const Center(
+                    child: Text('Select a document to edit.'),
+                  ),
+                DocumentLoading() => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                DocumentLoaded(:final document) ||
+                DocumentSaved(:final document) =>
+                  Column(
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => setState(() => _swapped = !_swapped),
+                        icon: const Icon(Icons.swap_horiz),
+                        label: const Text('Swap'),
+                      ),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ScrollConfiguration(
+                                behavior: ScrollConfiguration.of(context)
+                                    .copyWith(scrollbars: false),
+                                child: FlutterListView.builder(
+                                  controller: _controller,
+                                  itemCount: document.segments.length,
+                                  itemBuilder: (context, index) {
+                                    final segment = document.segments[index];
+                                    return SegmentWidget(
+                                      segment,
+                                      swapped: _swapped,
+                                      onTextChanged: (newText) {
+                                        final documentBloc =
+                                            context.read<DocumentBloc>();
+                                        documentBloc.add(
+                                            EditDocumentEvent(newText, index));
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              behavior: HitTestBehavior.translucent,
+                              onTapDown: (details) =>
+                                  _handleTapOnNavigationPanel(
+                                      details, document),
+                              child: DocumentMap(
+                                document: document,
+                                controller: _controller,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                DocumentSaving() => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+              };
             },
           ),
-        ],
-      ),
-      body: BlocBuilder<DocumentBloc, DocumentState>(
-        builder: (context, state) {
-          return switch (state) {
-            DocumentInitial() => const Center(
-                child: Text('Select a document to edit.'),
-              ),
-            DocumentLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
-            DocumentLoaded(:final document) => Column(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => setState(() => _swapped = !_swapped),
-                    icon: const Icon(Icons.swap_horiz),
-                    label: const Text('Swap'),
-                  ),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ScrollConfiguration(
-                            behavior: ScrollConfiguration.of(context)
-                                .copyWith(scrollbars: false),
-                            child: FlutterListView.builder(
-                              controller: _controller,
-                              itemCount: document.segments.length,
-                              itemBuilder: (context, index) {
-                                final segment = document.segments[index];
-                                return SegmentWidget(
-                                  segment,
-                                  swapped: _swapped,
-                                  onTextChanged: (newText) {
-                                    final documentBloc =
-                                        context.read<DocumentBloc>();
-                                    documentBloc
-                                        .add(EditDocumentEvent(newText, index));
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTapDown: (details) =>
-                              _handleTapOnNavigationPanel(details, document),
-                          child: DocumentMap(
-                            document: document,
-                            controller: _controller,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            DocumentSaving() => const Center(
-                child: CircularProgressIndicator(),
-              ),
-            DocumentSaved() => const Center(
-                child: Text('Document saved successfully.'),
-              ),
-          };
-        },
-      ),
+        );
+      },
     );
   }
 
