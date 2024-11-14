@@ -1,13 +1,13 @@
+/// Represents a text segment within a document.
 class SegmentModel {
   SegmentModel({
-    required this.id,
     required this.sourceText,
-    required this.translationText,
-    this.isTitle,
+    required this.isTitle,
   });
 
-  String id;
+  /// The original text of this segment.
   String sourceText;
-  String translationText;
-  bool? isTitle;
+
+  /// Whether this segment is a title.
+  bool isTitle;
 }

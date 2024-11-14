@@ -1,17 +1,21 @@
+import 'package:meta/meta.dart';
+
+/// Represents a segment within a document.
+@immutable
 class SegmentEntity {
-  SegmentEntity({
+  const SegmentEntity({
     required this.type,
-    required this.id,
     required this.sourceText,
-    required this.translationText,
   });
 
-  SegmentType type;
-  String id;
-  String sourceText;
-  String translationText;
+  /// The type of the segment (title or body).
+  final SegmentType type;
+
+  /// The original text of the segment.
+  final String sourceText;
 }
 
+/// An enumeration of segment types.
 enum SegmentType {
   title,
   body,
